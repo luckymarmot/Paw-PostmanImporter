@@ -7,8 +7,7 @@ var PostmanImporter = function() {
 		
 		// Check Postman data
 		if (!postmanCollection || !postmanCollection["requests"]) {
-			console.log("Invalid Postman data");
-			return false;
+			throw new Error("Invalid Postman data");
 		}
 		
 		// Build Postman request dictionary (by id)
@@ -141,6 +140,6 @@ var PostmanImporter = function() {
 }
 
 PostmanImporter.identifier = "com.luckymarmot.PawExtensions.PostmanImporter";
-PostmanImporter.title = "Postman";
+PostmanImporter.title = "Postman Importer";
 
 registerImporter(PostmanImporter);
