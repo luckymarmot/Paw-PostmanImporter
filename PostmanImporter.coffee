@@ -89,11 +89,14 @@ PostmanImporter = ->
     @importString = (context, string) ->
 
         # Parse JSON collection
-        postmanCollection = JSON.parse string
+        try
+            postmanCollection = JSON.parse string
+        catch error
+            throw new Error "Invalid Postman file (not a valid JSON)"
 
         # Check Postman data
         if not postmanCollection || not postmanCollection["requests"]
-            throw new Error "Invalid Postman data"
+            throw new Error "Invalid Postman file (missing data)"
 
         # Build Postman request dictionary (by id)
         postmanRequestsById = new Object()

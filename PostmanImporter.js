@@ -77,10 +77,15 @@
       return pawGroup;
     };
     this.importString = function(context, string) {
-      var pawGroup, pawRequest, pawRootGroup, postmanCollection, postmanFolder, postmanRequest, postmanRequestId, postmanRequestsById, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
-      postmanCollection = JSON.parse(string);
+      var error, pawGroup, pawRequest, pawRootGroup, postmanCollection, postmanFolder, postmanRequest, postmanRequestId, postmanRequestsById, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      try {
+        postmanCollection = JSON.parse(string);
+      } catch (_error) {
+        error = _error;
+        throw new Error("Invalid Postman file (not a valid JSON)");
+      }
       if (!postmanCollection || !postmanCollection["requests"]) {
-        throw new Error("Invalid Postman data");
+        throw new Error("Invalid Postman file (missing data)");
       }
       postmanRequestsById = new Object();
       _ref = postmanCollection["requests"];
