@@ -3,8 +3,13 @@
   var PostmanImporter;
 
   PostmanImporter = function() {
-    this.createPawRequest = function(context, postmanRequest) {
-      var bodyObject, contentType, foundBody, headerLine, i, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, _i, _j, _k, _len, _len1, _len2;
+    this.createPawRequest = function(context, postmanRequestsById, postmanRequestId) {
+      var bodyObject, contentType, foundBody, headerLine, i, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, _i, _j, _k, _len, _len1, _len2;
+      postmanRequest = postmanRequestsById[postmanRequestId];
+      if (!postmanRequest) {
+        console.log("Corrupted Postman file, no request found for ID: " + postmanRequestId);
+        return null;
+      }
       pawRequest = context.createRequest(postmanRequest["name"], postmanRequest["method"], postmanRequest["url"]);
       postmanHeaders = postmanRequest["headers"].split("\n");
       for (_i = 0, _len = postmanHeaders.length; _i < _len; _i++) {
@@ -60,15 +65,17 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           j = _ref[_i];
           postmanRequestId = postmanFolder["order"][j];
-          pawRequest = this.createPawRequest(context, postmanRequestsById[postmanRequestId]);
-          pawGroup.appendChild(pawRequest);
+          pawRequest = this.createPawRequest(context, postmanRequestsById, postmanRequestId);
+          if (pawRequest) {
+            pawGroup.appendChild(pawRequest);
+          }
         }
       }
       console.log("Created Group: " + postmanFolder["name"]);
       return pawGroup;
     };
     this.importString = function(context, string) {
-      var i, pawGroup, pawRequest, pawRootGroup, postmanCollection, postmanRequestId, postmanRequestsById, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      var pawGroup, pawRequest, pawRootGroup, postmanCollection, postmanFolder, postmanRequest, postmanRequestId, postmanRequestsById, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       postmanCollection = JSON.parse(string);
       if (!postmanCollection || !postmanCollection["requests"]) {
         throw new Error("Invalid Postman data");
@@ -76,24 +83,23 @@
       postmanRequestsById = new Object();
       _ref = postmanCollection["requests"];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        i = _ref[_i];
-        postmanRequestsById[postmanRequest["id"]] = postmanCollection["requests"][i];
+        postmanRequest = _ref[_i];
+        postmanRequestsById[postmanRequest["id"]] = postmanRequest;
       }
       pawRootGroup = context.createRequestGroup(postmanCollection["name"]);
       if (postmanCollection["folders"]) {
         _ref1 = postmanCollection["folders"];
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          i = _ref1[_j];
-          pawGroup = this.createPawGroup(context, postmanRequestsById, postmanCollection["folders"][i]);
+          postmanFolder = _ref1[_j];
+          pawGroup = this.createPawGroup(context, postmanRequestsById, postmanFolder);
           pawRootGroup.appendChild(pawGroup);
         }
       }
       if (postmanCollection["order"]) {
         _ref2 = postmanCollection["order"];
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          i = _ref2[_k];
-          postmanRequestId = postmanCollection["order"][i];
-          pawRequest = this.createPawRequest(context, postmanRequestsById[postmanRequestId]);
+          postmanRequestId = _ref2[_k];
+          pawRequest = this.createPawRequest(context, postmanRequestsById, postmanRequestId);
           pawRootGroup.appendChild(pawRequest);
         }
       }

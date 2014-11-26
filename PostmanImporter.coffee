@@ -1,7 +1,14 @@
 PostmanImporter = ->
 
     # Create Paw requests from a Postman Request (object)
-    @createPawRequest = (context, postmanRequest) ->
+    @createPawRequest = (context, postmanRequestsById, postmanRequestId) ->
+
+        # Get Request
+        postmanRequest = postmanRequestsById[postmanRequestId]
+
+        if not postmanRequest
+            console.log "Corrupted Postman file, no request found for ID: #{ postmanRequestId }"
+            return null
 
         # Create Paw request
         pawRequest = context.createRequest postmanRequest["name"], postmanRequest["method"], postmanRequest["url"]
@@ -27,7 +34,7 @@ PostmanImporter = ->
                     pawRequest.jsonBody = jsonObject
                     foundBody = true
 
-            if !foundBody
+            if not foundBody
                 pawRequest.body = postmanRequest["rawModeData"]
 
         # Set Form URL-Encoded body
@@ -69,10 +76,11 @@ PostmanImporter = ->
                 postmanRequestId = postmanFolder["order"][j]
 
                 # Create a Paw request
-                pawRequest = @createPawRequest context, postmanRequestsById[postmanRequestId]
+                pawRequest = @createPawRequest context, postmanRequestsById, postmanRequestId
 
                 # Add request to parent group
-                pawGroup.appendChild pawRequest
+                if pawRequest
+                    pawGroup.appendChild pawRequest
 
         console.log "Created Group: #{ postmanFolder["name"] }"
 
@@ -84,32 +92,30 @@ PostmanImporter = ->
         postmanCollection = JSON.parse string
 
         # Check Postman data
-        if !postmanCollection || !postmanCollection["requests"]
+        if not postmanCollection || not postmanCollection["requests"]
             throw new Error "Invalid Postman data"
 
         # Build Postman request dictionary (by id)
         postmanRequestsById = new Object()
-        for i in postmanCollection["requests"]
-            postmanRequestsById[postmanRequest["id"]] = postmanCollection["requests"][i]
+        for postmanRequest in postmanCollection["requests"]
+            postmanRequestsById[postmanRequest["id"]] = postmanRequest
 
         # Create a Paw Group
         pawRootGroup = context.createRequestGroup postmanCollection["name"]
 
         # Add Postman folders
         if postmanCollection["folders"]
-            for i in postmanCollection["folders"]
-                pawGroup = @createPawGroup context, postmanRequestsById, postmanCollection["folders"][i]
+            for postmanFolder in postmanCollection["folders"]
+                pawGroup = @createPawGroup context, postmanRequestsById, postmanFolder
 
                 # Add group to root
                 pawRootGroup.appendChild pawGroup
 
         # Add Postman requests in root
         if postmanCollection["order"]
-            for i in postmanCollection["order"]
-                postmanRequestId = postmanCollection["order"][i]
-
+            for postmanRequestId in postmanCollection["order"]
                 # Create a Paw request
-                pawRequest = @createPawRequest context, postmanRequestsById[postmanRequestId]
+                pawRequest = @createPawRequest context, postmanRequestsById, postmanRequestId
 
                 # Add request to root group
                 pawRootGroup.appendChild pawRequest
