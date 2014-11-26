@@ -58,13 +58,12 @@
       return pawRequest;
     };
     this.createPawGroup = function(context, postmanRequestsById, postmanFolder) {
-      var j, pawGroup, pawRequest, postmanRequestId, _i, _len, _ref;
+      var pawGroup, pawRequest, postmanRequestId, _i, _len, _ref;
       pawGroup = context.createRequestGroup(postmanFolder["name"]);
       if (postmanFolder["order"]) {
         _ref = postmanFolder["order"];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          j = _ref[_i];
-          postmanRequestId = postmanFolder["order"][j];
+          postmanRequestId = _ref[_i];
           pawRequest = this.createPawRequest(context, postmanRequestsById, postmanRequestId);
           if (pawRequest) {
             pawGroup.appendChild(pawRequest);

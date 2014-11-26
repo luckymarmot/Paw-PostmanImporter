@@ -72,8 +72,7 @@ PostmanImporter = ->
 
         # Iterate on requests in group
         if postmanFolder["order"]
-            for j in postmanFolder["order"]
-                postmanRequestId = postmanFolder["order"][j]
+            for postmanRequestId in postmanFolder["order"]
 
                 # Create a Paw request
                 pawRequest = @createPawRequest context, postmanRequestsById, postmanRequestId
