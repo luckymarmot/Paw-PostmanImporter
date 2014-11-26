@@ -16,8 +16,7 @@ PostmanImporter = ->
         # Add Headers
         # Postman stores headers like HTTP headers, separated by \n
         postmanHeaders = postmanRequest["headers"].split "\n"
-        for i in postmanHeaders
-            headerLine = postmanHeaders[i];
+        for headerLine in postmanHeaders
             match = headerLine.match /^([^\s\:]*)\s*\:\s*(.*)$/
             if match
                 pawRequest.setHeader match[1], match[2]
@@ -41,11 +40,11 @@ PostmanImporter = ->
         else if postmanRequest["dataMode"] == "urlencoded"
             postmanBodyData = postmanRequest["data"]
             bodyObject = new Object()
-            for i in postmanBodyData
+            for bodyItem in postmanBodyData
                 # Note: it sounds like all data fields are "text" type
                 # when in "urlencoded" data mode.
-                if postmanBodyData[i]["type"] == "text"
-                    bodyObject[postmanBodyData[i]["key"]] = postmanBodyData[i]["value"]
+                if bodyItem["type"] == "text"
+                    bodyObject[bodyItem["key"]] = bodyItem["value"]
 
             pawRequest.urlEncodedBody = bodyObject;
 
@@ -53,11 +52,11 @@ PostmanImporter = ->
         else if postmanRequest["dataMode"] == "params"
             postmanBodyData = postmanRequest["data"]
             bodyObject = new Object()
-            for i in postmanBodyData
+            for bodyItem in postmanBodyData
                 # Note: due to Apple Sandbox limitations, we cannot import
                 # "file" type items
-                if postmanBodyData[i]["type"] == "text"
-                    bodyObject[postmanBodyData[i]["key"]] = postmanBodyData[i]["value"]
+                if bodyItem["type"] == "text"
+                    bodyObject[bodyItem["key"]] = bodyItem["value"]
 
             pawRequest.multipartBody = bodyObject
 

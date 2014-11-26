@@ -4,7 +4,7 @@
 
   PostmanImporter = function() {
     this.createPawRequest = function(context, postmanRequestsById, postmanRequestId) {
-      var bodyObject, contentType, foundBody, headerLine, i, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, _i, _j, _k, _len, _len1, _len2;
+      var bodyItem, bodyObject, contentType, foundBody, headerLine, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, _i, _j, _k, _len, _len1, _len2;
       postmanRequest = postmanRequestsById[postmanRequestId];
       if (!postmanRequest) {
         console.log("Corrupted Postman file, no request found for ID: " + postmanRequestId);
@@ -13,8 +13,7 @@
       pawRequest = context.createRequest(postmanRequest["name"], postmanRequest["method"], postmanRequest["url"]);
       postmanHeaders = postmanRequest["headers"].split("\n");
       for (_i = 0, _len = postmanHeaders.length; _i < _len; _i++) {
-        i = postmanHeaders[_i];
-        headerLine = postmanHeaders[i];
+        headerLine = postmanHeaders[_i];
         match = headerLine.match(/^([^\s\:]*)\s*\:\s*(.*)$/);
         if (match) {
           pawRequest.setHeader(match[1], match[2]);
@@ -37,9 +36,9 @@
         postmanBodyData = postmanRequest["data"];
         bodyObject = new Object();
         for (_j = 0, _len1 = postmanBodyData.length; _j < _len1; _j++) {
-          i = postmanBodyData[_j];
-          if (postmanBodyData[i]["type"] === "text") {
-            bodyObject[postmanBodyData[i]["key"]] = postmanBodyData[i]["value"];
+          bodyItem = postmanBodyData[_j];
+          if (bodyItem["type"] === "text") {
+            bodyObject[bodyItem["key"]] = bodyItem["value"];
           }
         }
         pawRequest.urlEncodedBody = bodyObject;
@@ -47,9 +46,9 @@
         postmanBodyData = postmanRequest["data"];
         bodyObject = new Object();
         for (_k = 0, _len2 = postmanBodyData.length; _k < _len2; _k++) {
-          i = postmanBodyData[_k];
-          if (postmanBodyData[i]["type"] === "text") {
-            bodyObject[postmanBodyData[i]["key"]] = postmanBodyData[i]["value"];
+          bodyItem = postmanBodyData[_k];
+          if (bodyItem["type"] === "text") {
+            bodyObject[bodyItem["key"]] = bodyItem["value"];
           }
         }
         pawRequest.multipartBody = bodyObject;
