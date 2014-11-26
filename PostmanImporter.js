@@ -4,7 +4,7 @@
 
   PostmanImporter = function() {
     this.createPawRequest = function(context, postmanRequestsById, postmanRequestId) {
-      var bodyItem, bodyObject, contentType, foundBody, headerLine, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, _i, _j, _k, _len, _len1, _len2;
+      var bodyItem, bodyObject, contentType, error, foundBody, headerLine, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, _i, _j, _k, _len, _len1, _len2;
       postmanRequest = postmanRequestsById[postmanRequestId];
       if (!postmanRequest) {
         console.log("Corrupted Postman file, no request found for ID: " + postmanRequestId);
@@ -23,7 +23,12 @@
         contentType = pawRequest.getHeaderByName("Content-Type");
         foundBody = false;
         if (contentType && contentType.indexOf("json") >= 0) {
-          jsonObject = JSON.parse(postmanRequest["rawModeData"]);
+          try {
+            jsonObject = JSON.parse(postmanRequest["rawModeData"]);
+          } catch (_error) {
+            error = _error;
+            console.log("Cannot parse Request JSON: " + postmanRequest["name"] + " (ID: " + postmanRequestId + ")");
+          }
           if (jsonObject) {
             pawRequest.jsonBody = jsonObject;
             foundBody = true;
@@ -53,7 +58,6 @@
         }
         pawRequest.multipartBody = bodyObject;
       }
-      console.log("Created Request: " + postmanRequest["name"]);
       return pawRequest;
     };
     this.createPawGroup = function(context, postmanRequestsById, postmanFolder) {
@@ -69,7 +73,6 @@
           }
         }
       }
-      console.log("Created Group: " + postmanFolder["name"]);
       return pawGroup;
     };
     this.importString = function(context, string) {

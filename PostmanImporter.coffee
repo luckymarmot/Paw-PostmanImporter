@@ -28,7 +28,10 @@ PostmanImporter = ->
 
             # If the Content-Type contains "json" make it a JSON body
             if contentType && contentType.indexOf("json") >= 0
-                jsonObject = JSON.parse(postmanRequest["rawModeData"])
+                try
+                    jsonObject = JSON.parse(postmanRequest["rawModeData"])
+                catch error
+                    console.log "Cannot parse Request JSON: #{ postmanRequest["name"] } (ID: #{ postmanRequestId })"
                 if jsonObject
                     pawRequest.jsonBody = jsonObject
                     foundBody = true
@@ -60,8 +63,6 @@ PostmanImporter = ->
 
             pawRequest.multipartBody = bodyObject
 
-        console.log "Created Request: #{ postmanRequest["name"] }"
-
         return pawRequest
 
     @createPawGroup = (context, postmanRequestsById, postmanFolder) ->
@@ -79,8 +80,6 @@ PostmanImporter = ->
                 # Add request to parent group
                 if pawRequest
                     pawGroup.appendChild pawRequest
-
-        console.log "Created Group: #{ postmanFolder["name"] }"
 
         return pawGroup
 
