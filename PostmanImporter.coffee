@@ -24,20 +24,23 @@ PostmanImporter = ->
         # Set raw body
         if postmanRequest["dataMode"] == "raw"
             contentType = pawRequest.getHeaderByName "Content-Type"
+            rawRequestBody = postmanRequest["rawModeData"]
             foundBody = false;
 
             # If the Content-Type contains "json" make it a JSON body
-            if contentType && contentType.indexOf("json") >= 0
+            if contentType and contentType.indexOf("json") >= 0 and rawRequestBody and rawRequestBody.length > 0
+                # try to parse JSON body input
                 try
-                    jsonObject = JSON.parse(postmanRequest["rawModeData"])
+                    jsonObject = JSON.parse rawRequestBody
                 catch error
                     console.log "Cannot parse Request JSON: #{ postmanRequest["name"] } (ID: #{ postmanRequestId })"
+                # set the JSON body
                 if jsonObject
                     pawRequest.jsonBody = jsonObject
                     foundBody = true
 
             if not foundBody
-                pawRequest.body = postmanRequest["rawModeData"]
+                pawRequest.body = rawRequestBody
 
         # Set Form URL-Encoded body
         else if postmanRequest["dataMode"] == "urlencoded"

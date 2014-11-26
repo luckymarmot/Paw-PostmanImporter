@@ -4,7 +4,7 @@
 
   PostmanImporter = function() {
     this.createPawRequest = function(context, postmanRequestsById, postmanRequestId) {
-      var bodyItem, bodyObject, contentType, error, foundBody, headerLine, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, _i, _j, _k, _len, _len1, _len2;
+      var bodyItem, bodyObject, contentType, error, foundBody, headerLine, jsonObject, match, pawRequest, postmanBodyData, postmanHeaders, postmanRequest, rawRequestBody, _i, _j, _k, _len, _len1, _len2;
       postmanRequest = postmanRequestsById[postmanRequestId];
       if (!postmanRequest) {
         console.log("Corrupted Postman file, no request found for ID: " + postmanRequestId);
@@ -21,10 +21,11 @@
       }
       if (postmanRequest["dataMode"] === "raw") {
         contentType = pawRequest.getHeaderByName("Content-Type");
+        rawRequestBody = postmanRequest["rawModeData"];
         foundBody = false;
-        if (contentType && contentType.indexOf("json") >= 0) {
+        if (contentType && contentType.indexOf("json") >= 0 && rawRequestBody && rawRequestBody.length > 0) {
           try {
-            jsonObject = JSON.parse(postmanRequest["rawModeData"]);
+            jsonObject = JSON.parse(rawRequestBody);
           } catch (_error) {
             error = _error;
             console.log("Cannot parse Request JSON: " + postmanRequest["name"] + " (ID: " + postmanRequestId + ")");
@@ -35,7 +36,7 @@
           }
         }
         if (!foundBody) {
-          pawRequest.body = postmanRequest["rawModeData"];
+          pawRequest.body = rawRequestBody;
         }
       } else if (postmanRequest["dataMode"] === "urlencoded") {
         postmanBodyData = postmanRequest["data"];
