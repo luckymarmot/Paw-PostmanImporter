@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/LuckyMarmot/Paw-PostmanImporter.svg?branch=master)](https://travis-ci.org/LuckyMarmot/Paw-PostmanImporter)
+
 #Postman Importer (Paw Extension)
 
 This a Paw Extension to import [Postman Collections](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm) into Paw.
@@ -17,3 +19,7 @@ First, make sure you have this Paw Extension installed, otherwise [Install it no
 This Paw Extension is released under the [MIT License](LICENSE). Feel free to fork, and modify!
 
 Copyright © 2014 Paw Inc.
+
+##Contributors
+
+See [Contributors](https://github.com/LuckyMarmot/Paw-PostmanImporter/graphs/contributors).
