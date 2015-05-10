@@ -106,17 +106,30 @@ PostmanImporter = ->
         # Create a Paw Group
         pawRootGroup = context.createRequestGroup postmanCollection["name"]
 
-        # Add Postman folders
-        if postmanCollection["folders"]
-            for postmanFolder in postmanCollection["folders"]
-                pawGroup = @createPawGroup context, postmanRequestsById, postmanFolder
+        # If we have either "folders" or "order"
+        if postmanCollection["folders"]? || postmanCollection["order"]?
 
-                # Add group to root
-                pawRootGroup.appendChild pawGroup
+            # Add Postman folders
+            if postmanCollection["folders"]?
+                for postmanFolder in postmanCollection["folders"]
+                    pawGroup = @createPawGroup context, postmanRequestsById, postmanFolder
 
-        # Add Postman requests in root
-        if postmanCollection["order"]
-            for postmanRequestId in postmanCollection["order"]
+                    # Add group to root
+                    pawRootGroup.appendChild pawGroup
+
+            # Add Postman requests in root
+            if postmanCollection["order"]?
+                for postmanRequestId in postmanCollection["order"]
+                    # Create a Paw request
+                    pawRequest = @createPawRequest context, postmanRequestsById, postmanRequestId
+
+                    # Add request to root group
+                    pawRootGroup.appendChild pawRequest
+
+        # If the collection does not have "folders" or "order"
+        # add all requests in root
+        else
+            for postmanRequestId, postmanRequest of postmanRequestsById
                 # Create a Paw request
                 pawRequest = @createPawRequest context, postmanRequestsById, postmanRequestId
 
