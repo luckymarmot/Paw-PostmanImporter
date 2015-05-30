@@ -86,13 +86,7 @@ PostmanImporter = ->
 
         return pawGroup
 
-    @importString = (context, string) ->
-
-        # Parse JSON collection
-        try
-            postmanCollection = JSON.parse string
-        catch error
-            throw new Error "Invalid Postman file (not a valid JSON)"
+    @importCollection = (context, postmanCollection) ->
 
         # Check Postman data
         if not postmanCollection || not postmanCollection["requests"]
@@ -135,6 +129,26 @@ PostmanImporter = ->
 
                 # Add request to root group
                 pawRootGroup.appendChild pawRequest
+
+
+    @importString = (context, string) ->
+
+        # Parse JSON collection
+        try
+            postmanTree = JSON.parse string
+        catch error
+            throw new Error "Invalid Postman file (not a valid JSON)"
+
+        if not postmanTree
+            throw new Error "Invalid Postman file (missing root data)"
+
+        # import a list of collections
+        if postmanTree["collections"]
+            for postmanCollection in postmanTree["collections"]
+                @importCollection context, postmanCollection
+        # import a single collection
+        else
+            @importCollection context, postmanTree
 
         return true
 
