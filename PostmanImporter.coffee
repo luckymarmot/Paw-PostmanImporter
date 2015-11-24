@@ -11,7 +11,7 @@ PostmanImporter = ->
             return null
 
         # Create Paw request
-        pawRequest = context.createRequest postmanRequest["name"], postmanRequest["method"], postmanRequest["url"]
+        pawRequest = context.createRequest postmanRequest["name"], postmanRequest["method"], @expandEnvironmentVariables(context, postmanRequest["url"])
 
         # Add Headers
         # Postman stores headers like HTTP headers, separated by \n
@@ -19,7 +19,8 @@ PostmanImporter = ->
         for headerLine in postmanHeaders
             match = headerLine.match /^([^\s\:]*)\s*\:\s*(.*)$/
             if match
-                pawRequest.setHeader match[1], match[2]
+
+                pawRequest.setHeader @expandEnvironmentVariables(context, match[1]), @expandEnvironmentVariables(context, match[2])
 
         # Set raw body
         if postmanRequest["dataMode"] == "raw"
@@ -36,11 +37,11 @@ PostmanImporter = ->
                     console.log "Cannot parse Request JSON: #{ postmanRequest["name"] } (ID: #{ postmanRequestId })"
                 # set the JSON body
                 if jsonObject
-                    pawRequest.jsonBody = jsonObject
+                    pawRequest.body = @expandEnvironmentVariables context, rawRequestBody
                     foundBody = true
 
             if not foundBody
-                pawRequest.body = rawRequestBody
+                pawRequest.body = @expandEnvironmentVariables context, rawRequestBody
 
         # Set Form URL-Encoded body
         else if postmanRequest["dataMode"] == "urlencoded"
@@ -50,7 +51,7 @@ PostmanImporter = ->
                 # Note: it sounds like all data fields are "text" type
                 # when in "urlencoded" data mode.
                 if bodyItem["type"] == "text"
-                    bodyObject[bodyItem["key"]] = bodyItem["value"]
+                    bodyObject[bodyItem["key"]] = @expandEnvironmentVariables context, bodyItem["value"]
 
             pawRequest.urlEncodedBody = bodyObject;
 
@@ -62,11 +63,23 @@ PostmanImporter = ->
                 # Note: due to Apple Sandbox limitations, we cannot import
                 # "file" type items
                 if bodyItem["type"] == "text"
-                    bodyObject[bodyItem["key"]] = bodyItem["value"]
+                    bodyObject[bodyItem["key"]] = @expandEnvironmentVariables context, bodyItem["value"]
 
             pawRequest.multipartBody = bodyObject
 
         return pawRequest
+
+    @expandEnvironmentVariables = (context, string) ->
+        rx = /\{\{([^\n\}]+)\}\}/g;
+        items = string.split(rx)
+        if items.length < 2
+            return string
+        for i in [1...items.length] by 2
+            envVariable = @getEnvironmentVariable context, items[i]
+            varID = envVariable.id
+            dynamicValue = new DynamicValue "com.luckymarmot.EnvironmentVariableDynamicValue", {environmentVariable: varID}
+            items[i] = dynamicValue
+        return new DynamicString items...
 
     @createPawGroup = (context, postmanRequestsById, postmanFolder) ->
 
@@ -151,6 +164,29 @@ PostmanImporter = ->
             @importCollection context, postmanTree
 
         return true
+
+    @getEnvironmentDomain = (context) ->
+        env = context.getEnvironmentDomainByName('Imported (Postman)')
+        if typeof env is 'undefined'
+            env = context.createEnvironmentDomain('Imported (Postman)')
+        return env
+
+    @getEnvironment = (environmentDomain) ->
+        env = environmentDomain.getEnvironmentByName('ImportedEnv')
+        if typeof env is 'undefined'
+            env = environmentDomain.createEnvironment('ImportedEnv')
+        return env
+
+    @getEnvironmentVariable = (context, name) ->
+        envD = @getEnvironmentDomain context
+        variable = envD.getVariableByName(name)
+        if typeof variable is 'undefined'
+            env = @getEnvironment(envD)
+            varD = {}
+            varD[name] = ''
+            env.setVariablesValues(varD)
+            variable = envD.getVariableByName(name)
+        return variable
 
     return
 
