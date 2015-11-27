@@ -19,7 +19,6 @@ PostmanImporter = ->
         for headerLine in postmanHeaders
             match = headerLine.match /^([^\s\:]*)\s*\:\s*(.*)$/
             if match
-
                 pawRequest.setHeader @expandEnvironmentVariables(context, match[1]), @expandEnvironmentVariables(context, match[2])
 
         # Set raw body
@@ -41,10 +40,11 @@ PostmanImporter = ->
                     foundBody = true
 
             if not foundBody
-                pawRequest.body = @expandEnvironmentVariables context, rawRequestBody
+                if typeof rawRequestBody isnt 'undefined'
+                    pawRequest.body = @expandEnvironmentVariables context, rawRequestBody
 
         # Set Form URL-Encoded body
-        else if postmanRequest["dataMode"] == "urlencoded"
+        else if postmanRequest["dataMode"] == "urlencoded" and postmanRequest["data"] != null
             postmanBodyData = postmanRequest["data"]
             bodyObject = new Object()
             for bodyItem in postmanBodyData
@@ -56,7 +56,7 @@ PostmanImporter = ->
             pawRequest.urlEncodedBody = bodyObject;
 
         # Set Multipart body
-        else if postmanRequest["dataMode"] == "params"
+        else if postmanRequest["dataMode"] == "params" and postmanRequest["data"] != null
             postmanBodyData = postmanRequest["data"]
             bodyObject = new Object()
             for bodyItem in postmanBodyData
