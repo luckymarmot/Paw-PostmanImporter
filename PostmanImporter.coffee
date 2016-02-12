@@ -70,6 +70,8 @@ PostmanImporter = ->
         return pawRequest
 
     @expandEnvironmentVariables = (context, string) ->
+        if string == null
+            string = ''
         rx = /\{\{([^\n\}]+)\}\}/g;
         items = string.split(rx)
         if items.length < 2
