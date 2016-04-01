@@ -1,3 +1,5 @@
+POSTMAN_ENVIRONMENT_DOMAIN_NAME = 'Postman Environments'
+
 PostmanImporter = ->
 
     # Create Paw requests from a Postman Request (object)
@@ -145,38 +147,16 @@ PostmanImporter = ->
                 # Add request to root group
                 pawRootGroup.appendChild pawRequest
 
-
-    @importString = (context, string) ->
-
-        # Parse JSON collection
-        try
-            postmanTree = JSON.parse string
-        catch error
-            throw new Error "Invalid Postman file (not a valid JSON)"
-
-        if not postmanTree
-            throw new Error "Invalid Postman file (missing root data)"
-
-        # import a list of collections
-        if postmanTree["collections"]
-            for postmanCollection in postmanTree["collections"]
-                @importCollection context, postmanCollection
-        # import a single collection
-        else
-            @importCollection context, postmanTree
-
-        return true
-
     @getEnvironmentDomain = (context) ->
-        env = context.getEnvironmentDomainByName('Imported (Postman)')
+        env = context.getEnvironmentDomainByName(POSTMAN_ENVIRONMENT_DOMAIN_NAME)
         if typeof env is 'undefined'
-            env = context.createEnvironmentDomain('Imported (Postman)')
+            env = context.createEnvironmentDomain(POSTMAN_ENVIRONMENT_DOMAIN_NAME)
         return env
 
     @getEnvironment = (environmentDomain) ->
-        env = environmentDomain.getEnvironmentByName('ImportedEnv')
+        env = environmentDomain.getEnvironmentByName('Default Environment')
         if typeof env is 'undefined'
-            env = environmentDomain.createEnvironment('ImportedEnv')
+            env = environmentDomain.createEnvironment('Default Environment')
         return env
 
     @getEnvironmentVariable = (context, name) ->
@@ -189,6 +169,101 @@ PostmanImporter = ->
             env.setVariablesValues(varD)
             variable = envD.getVariableByName(name)
         return variable
+
+    @canImport = (context, items) ->
+        a = 0
+        b = 0
+        for item in items
+            a += @_canImportItem(context, item)
+            b += 1
+        return if b > 0 then a/b else 0
+
+    @_canImportItem = (context, item) ->
+        # Parse JSON
+        try
+            obj = JSON.parse(item.content)
+        catch error
+            return 0
+        # That's a Postman dump
+        if obj and obj.collections? and obj.environments? and obj.globals? and obj.version?
+            return 1
+        # That's a Postman request or collection export
+        if obj and (obj.collections? or obj.requests?) and obj.order? and obj.name? and obj.id?
+            return 1
+        # That's a Postman environment export
+        if obj and obj.values? and obj.name? and obj.id?
+            return 1
+        return 0
+
+    @importString = (context, str) ->
+        return @import(context, [ { content: str } ])
+
+    @import = (context, items) ->
+        collections = []
+        environments = []
+
+        for item in items
+            # Parse JSON
+            try
+                obj = JSON.parse(item.content)
+            catch error
+                throw new Error "Invalid Postman file (not a valid JSON)"
+
+            # Dump file
+            if obj.collections? and obj.environments?
+                for collection in obj.collections
+                    collections.push(collection)
+                for environment in obj.environments
+                    environments.push(environment)
+            # Collection file
+            if obj.collections? or obj.requests?
+                collections.push(obj)
+            # Environments file
+            else if obj and obj.values? and obj.name?
+                environments.push(obj)
+            else
+                throw new Error "Invalid Postman file (missing required keys)"
+
+        # import environments, so binding can occur later on collection import
+        for obj in environments
+            @_importEnvironmentsFile(context, obj)
+
+        # import collections after, hope that variables will be bound to
+        # imported environment variables
+        for obj in collections
+            @_importCollectionFile(context, obj)
+
+        return true
+
+    @_importCollectionFile = (context, obj) ->
+        # import a list of collections
+        if obj.collections
+            for postmanCollection in obj.collections
+                @importCollection(context, postmanCollection)
+        # import a single collection
+        else
+            @importCollection(context, obj)
+
+        return true
+
+    @_importEnvironmentsFile = (context, obj) ->
+
+        # Get or create the environment domain
+        pawEnvironmentDomainName = POSTMAN_ENVIRONMENT_DOMAIN_NAME
+        pawEnvironmentDomain = context.getEnvironmentDomainByName(pawEnvironmentDomainName)
+        if not pawEnvironmentDomain
+            pawEnvironmentDomain = context.createEnvironmentDomain(pawEnvironmentDomainName)
+
+        # Create a new environment
+        pawEnvironment = pawEnvironmentDomain.createEnvironment(obj.name)
+
+        variablesDict = {}
+        for postmanValue in obj.values
+            variablesDict[postmanValue.key] = postmanValue.value
+
+        pawEnvironment.setVariablesValues(variablesDict)
+
+        return true;
 
     return
 
