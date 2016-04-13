@@ -64,8 +64,6 @@ export default class PostmanImporter extends BaseImporter {
 
         let currentReqContext = current.context
 
-        console.log('group', reqContext.get('group'))
-
         currentReqContext = currentReqContext
             .mergeEnvironments(reqContext.get('environments'))
 
