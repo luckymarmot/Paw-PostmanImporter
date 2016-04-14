@@ -1,6 +1,6 @@
 {
   "name": "Paw-PostmanImporter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "dependencies": {
     "api-flow": "0.0.21",
     "paw-base-importer": "0.0.22",
