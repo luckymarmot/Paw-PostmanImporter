@@ -2,7 +2,11 @@
 
 # Postman Importer (Paw Extension)
 
-A [Paw Extension](http://luckymarmot.com/paw/extensions/) to import [Postman Collections](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm) into Paw. You can also import Postman Environments with [Postman Environment Importer](https://github.com/luckymarmot/Paw-PostmanEnvironmentImporter).
+A [Paw Extension](http://luckymarmot.com/paw/extensions/) to import [Postman Files](https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm) into Paw. It can import files with the following extensions:
+
+- `.postman_dump`
+- `.postman_environment`
+- `.postman-collection`
 
 ## Installation
 
@@ -17,20 +21,24 @@ Easily install this Paw Extension: [Install Postman Importer](http://luckymarmot
 
 ## Development
 
+### Prerequisites
+
+```shell
+nvm install
+nvm use
+npm install
+```
+
 ### Build & Install
 
 ```shell
-npm install
-cake build
-cake install
+make build
 ```
 
-### Watch
-
-During development, watch for changes:
+### Install
 
 ```shell
-cake watch
+make install
 ```
 
 ## License
