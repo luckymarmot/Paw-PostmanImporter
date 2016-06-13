@@ -34,6 +34,14 @@ export default class PostmanImporter extends BaseImporter {
             return 0
         }
         if (postman) {
+            if (
+                postman.info ||
+                postman.item ||
+                postman.variables ||
+                postman.variable
+            ) {
+                return 0.5
+            }
             let score = 0
             score += postman.collections ? 1 / 2 : 0
             score += postman.environments ? 1 / 2 : 0
@@ -60,10 +68,9 @@ export default class PostmanImporter extends BaseImporter {
         }
         catch (e) {
             throw new Error(
-                'Postman recently changed the format in which they ' +
-                'store their data. We are currently working on a fix. In the ' +
-                'meantime, API-Flow may help you convert your postman files ' +
-                'to Swagger files. For more info, see issue #13 on Github:\n' +
+                'Postman recently changed their data format. We\'re ' +
+                'currently working on a fix. In the meantime, you can ' +
+                'convert your file manually, read more at:\n\n' +
                 'https://github.com/luckymarmot/Paw-PostmanImporter/issues/13'
             )
         }
