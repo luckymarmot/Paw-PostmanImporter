@@ -55,7 +55,18 @@ export default class PostmanImporter extends BaseImporter {
     */
     createRequestContext(reqContexts, context, item) {
         const parser = new Parser.Postman()
-        let reqContext = parser.parse(item.content)
+        try {
+            let reqContext = parser.parse(item.content)
+        }
+        catch (e) {
+            throw new Error(
+                'Postman recently changed the format in which they ' +
+                'store their data. We are currently working on a fix. In the ' +
+                'meantime, API-Flow may help you convert your postman files ' +
+                'to Swagger files. For more info, see issue #13 on Github:\n' +
+                'https://github.com/luckymarmot/Paw-PostmanImporter/issues/13'
+            )
+        }
 
         let current = reqContexts[0] || {
             context: new RequestContext(),
