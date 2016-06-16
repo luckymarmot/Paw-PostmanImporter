@@ -34,6 +34,14 @@ export default class PostmanImporter extends BaseImporter {
             return 0
         }
         if (postman) {
+            if (
+                postman.info ||
+                postman.item ||
+                postman.variables ||
+                postman.variable
+            ) {
+                return 0.5
+            }
             let score = 0
             score += postman.collections ? 1 / 2 : 0
             score += postman.environments ? 1 / 2 : 0
@@ -55,7 +63,17 @@ export default class PostmanImporter extends BaseImporter {
     */
     createRequestContext(reqContexts, context, item) {
         const parser = new Parser.Postman()
-        let reqContext = parser.parse(item.content)
+        try {
+            let reqContext = parser.parse(item.content)
+        }
+        catch (e) {
+            throw new Error(
+                'Postman recently changed their data format. We\'re ' +
+                'currently working on a fix. In the meantime, you can ' +
+                'convert your file manually, read more at:\n\n' +
+                'https://github.com/luckymarmot/Paw-PostmanImporter/issues/13'
+            )
+        }
 
         let current = reqContexts[0] || {
             context: new RequestContext(),
