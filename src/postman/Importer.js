@@ -63,8 +63,9 @@ export default class PostmanImporter extends BaseImporter {
     */
     createRequestContext(reqContexts, context, item) {
         const parser = new Parser.Postman()
+        let reqContext
         try {
-            let reqContext = parser.parse(item.content)
+            reqContext = parser.parse(item.content)
         }
         catch (e) {
             throw new Error(
