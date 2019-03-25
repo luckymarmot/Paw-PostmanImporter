@@ -2,7 +2,7 @@ identifier=com.luckymarmot.PawExtensions.PostmanImporter
 extensions_dir=$(HOME)/Library/Containers/com.luckymarmot.Paw/Data/Library/Application Support/com.luckymarmot.Paw/Extensions/
 
 build:
-	npm run build
+	yarn build
 	cp README.md LICENSE ./build/$(identifier)/
 
 clean:

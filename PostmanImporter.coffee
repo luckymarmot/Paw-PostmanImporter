@@ -17,7 +17,7 @@ PostmanImporter = ->
 
         # Add Headers
         # Postman stores headers like HTTP headers, separated by \n
-        postmanHeaders = postmanRequest["headers"].split "\n"
+        postmanHeaders = (postmanRequest["headers"] || '').split "\n"
         for headerLine in postmanHeaders
             match = headerLine.match /^([^\s\:]*)\s*\:\s*(.*)$/
             if match
