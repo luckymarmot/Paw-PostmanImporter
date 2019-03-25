@@ -32,7 +32,7 @@ const config = {
             {
                 loader: 'json-loader',
                 include: [
-                    path.resolve(__dirname, 'node_modules/api-flow/node_modules/swagger-schema-official')
+                    path.resolve(__dirname, 'node_modules/swagger-schema-official')
                 ],
                 test: /\.json$/
             }
