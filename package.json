@@ -34,6 +34,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/ && BUILD_ENV=build ./node_modules/.bin/webpack --bail --display-error-details",
+    "test": "echo 'Error: no test specified'",
     "lint": "./node_modules/eslint/bin/eslint.js -c linting/prod.yaml src/"
   },
   "options": {
